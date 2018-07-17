@@ -1,0 +1,874 @@
+swagger: '2.0'
+info:
+  title: Parners B2wads API
+  description: Api autorizada para parceiros
+  version: v1
+
+tags:
+  - name: Campanhas
+  - name: Grupos
+  - name: Anúncios
+  - name: Financeiro
+  - name: Sessão
+  - name: Relatórios
+  - name: Histogramas
+
+definitions:
+  ad: 
+    type: object
+    properties:
+      id:
+        type: string
+      account_id:
+        type: string
+      campaign_id:
+        type: string
+      group_id:
+        type: string
+      product_id:
+        type: string
+      status:
+        type: string
+      cpc:
+        type: number
+      created_at:
+        type: string
+        format: date
+      updated_at:
+        type: string
+        format: date
+
+  group:
+    type: object
+    properties:
+      account_id:
+        type: string
+      campaign_id:
+        type: string
+      id:
+        type: string 
+      name:
+        type: string
+      status:
+        type: string
+      default_cpc:
+        type: number
+      created_at:
+        type: string
+        format: date
+      updated_at:
+        type: string
+        format: date
+
+
+  campaign:
+    type: object
+    properties:
+      id:
+        type: string
+      account_id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      start_date:
+        type: string
+        format: date
+      end_date:
+        type: string
+        format: date
+      budget:
+        type: number
+      created_at:
+        type: string
+        format: date
+      updated_at:
+        type: string
+        format: date
+
+  account:
+    type: object
+    properties:
+      id:
+        type: string 
+      name:
+        type: string
+      seller_id:
+        type: string
+      cnpj:
+        type: string
+      type:
+        type: string
+      created_at:
+        type: string
+        format: date
+      updated_at:
+        type: string
+        format: date
+
+  balance:
+    type: object
+    properties:
+      account_id:
+        type: string
+      value:
+        type: number
+      created_at:
+        type: string
+        format: date
+      updated_at:
+        type: string
+        format: date
+
+  operation: 
+    type: object
+    properties:
+      account_id:
+        type: string
+      value:
+        type: number
+      createdAt:
+        type: string
+        format: date
+      updatedAt:
+        type: string
+        format: date
+      type:
+        type: string
+      operator: 
+        type: string
+      event_id:
+        type: string
+      event_date:
+        type: string
+        format: date  
+
+  auth:
+    type: object
+    properties:
+      token:
+        type: string
+
+paths:
+  /{version}/partner/api/auth:
+    post:
+      tags:
+        - Sessão
+      summary: autentica usuário
+      consumes:
+        - application/json
+      parameters: 
+        - in: body
+          name: email
+          required: true
+        - in: body
+          name: password
+          required: true
+        - in: body
+          name: account_id
+
+      produces:
+        - application/json
+      schema:
+        $ref: '#/definitions/auth'
+      responses:
+        200:
+          description: 'usuário autorizado'
+        422:
+          description: 'falha na validação'
+
+  /{version}/partner/api/users/accounts:
+    get:
+      tags:
+        - Sessão
+      summary: lista contas do usuário
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/account'
+      responses:
+        200:
+          description: 'contas em que o usuário está'
+
+  /{version}/partner/api/users/accounts/current:
+    get:
+      tags:
+        - Sessão
+      summary: retorna a conta em que o usuário está logado
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+      schema:
+        $ref: '#/definitions/account'
+      responses:
+        200:
+          description: 'conta em que o usuário está logado'
+
+
+  /{version}/partner/api/billing-event/balance:
+    get:
+      tags:
+        - Financeiro
+      summary: retorna o saldo da conta atual
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+      schema:
+        $ref: '#/definitions/balance'
+      responses:
+        200:
+          description: 'saldo da conta atual'
+
+  /{version}/partner/api/billing-event/{begin_date}/to/{end_date}:
+    get:
+      tags:
+        - Financeiro
+      summary: eventos financeiros na conta atual
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/operation'
+      responses:
+        200:
+          description: 'saldo da conta atual'
+
+  /{version}/partner/api/accounts/:id/access:
+    get:
+      tags:
+        - Sessão
+      summary: recupera token de outra conta, da qual o usuário seja membro
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+      schema:
+        type:
+          $ref: '#/definitions/auth'
+      responses:
+        200:
+          description: 'access token'
+
+# campaigns
+  /{version}/partner/api/campaigns/:
+    post:
+      tags: 
+        - Campanhas
+      summary: cria campanha
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+        - in: body
+          name: budged
+        - in: body
+          name: name
+        - in: body
+          name: start_date
+        - in: body
+          name: end_date
+
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/campaign'
+      responses:
+        201:
+          description: 'campanha criada'
+    get:
+      tags: 
+        - Campanhas
+      summary: recupera campanhas
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+        - in: querystring
+          name: sort
+
+        - in: querystring
+          name: order
+
+        - in: querystring
+          name: limit
+
+        - in: querystring
+          name: page
+
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/campaign'
+      responses:
+        200:
+          description: 'lista de campanhas'
+
+  /{version}/partner/api/campaigns/{id}:
+
+    get:
+      tags: 
+        - Campanhas
+      summary: recupera campanha
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+      schema:
+        type:
+          $ref: '#/definitions/campaign'
+      responses:
+        200:
+          description: 'campanha'
+    put:
+      tags: 
+        - Campanhas
+      summary: atualiza campanha
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters:
+
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: body
+          name: budged
+        - in: body
+          name: name
+        - in: body
+          name: start_date
+        - in: body
+          name: end_date
+        - in: body
+          name: status
+
+      schema:
+        type:
+          $ref: '#/definitions/campaign'
+      responses:
+        200:
+          description: 'campanha atualizada'
+
+# groups
+  /{version}/partner/api/campaigns/{campaign_id}/adgroups/:
+    post:
+      tags:
+        - Grupos
+      summary: cria grupo
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+        - in: body
+          name: name
+        - in: body
+          name: default_cpc
+
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/group'
+      responses:
+        201:
+          description: grupo criada
+
+    get:
+      tags:
+        - Grupos
+      summary: recupera grupo
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+        - in: querystring
+          name: sort
+
+        - in: querystring
+          name: order
+
+        - in: querystring
+          name: limit
+
+        - in: querystring
+          name: page
+
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/group'
+      responses:
+        200:
+          description: 'lista de grupos'
+
+  /{version}/partner/api/campaigns/{campaign_id}/adgroups/{id}:
+    get:
+      tags:
+        - Grupos
+      summary: recupera grupo
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+      schema:
+        type:
+          $ref: '#/definitions/group'
+      responses:
+        200:
+          description: 'grupo'
+    put:
+      tags:
+        - Grupos
+      summary: atualiza campanha
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters:
+
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: default_cpc
+          name: budged
+        - in: body
+          name: name
+        - in: body
+          name: status
+
+      schema:
+        type:
+          $ref: '#/definitions/group'
+      responses:
+        200:
+          description: 'group atualizado'
+# ads
+  /{version}/partner/api/campaigns/{campaign_id}/adgroups/{group_id}/ads:
+    post: 
+      tags:
+        - Anúncios
+      summary: cria anúncio
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+        - in: body
+          name: array of product_id (pit)
+
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/ad'
+      responses:
+        200:
+          description: anúncio criado
+    get:
+      tags:
+        - Anúncios
+      summary: recupera anúncios
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+        - in: querystring
+          name: sort
+
+        - in: querystring
+          name: order
+
+        - in: querystring
+          name: limit
+
+        - in: querystring
+          name: page
+
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/ad'
+      responses:
+        200:
+          description: lista de anúncios
+
+  /{version}/partner/api/campaigns/{campaign_id}/adgroups/{group_id}/ads/{id}:
+    get:
+      tags:
+        - Anúncios
+      summary: recupera anúncio
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+      schema:
+        type:
+          $ref: '#/definitions/ad'
+      responses:
+        200:
+          description: 'anúncio'
+    put:
+      tags:
+        - Anúncios
+      summary: atualiza anúncio
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters:
+
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: body
+          name: cpc
+        - in: body
+          name: status
+
+      schema:
+        type:
+          $ref: '#/definitions/ad'
+      responses:
+        200:
+          description: anúncio atualizado
+
+# histogramas
+  /{version}/partner/api/histogram/campaign:
+    get:
+      tags:
+        - Histogramas
+      summary: histograma da conta atual
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+      schema:
+        type: Array
+        items: Object
+      responses:
+        200:
+          description: 'histograma'
+
+  /{version}/partner/api/histogram/campaign/{id}:
+    get:
+      tags:
+        - Histogramas
+      summary: histograma de uma campanha
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+      schema:
+        type: Array
+        items: Object
+      responses:
+        200:
+          description: 'histograma'
+
+  /{version}/partner/api/histogram/adgroup/{id}:
+    get:
+      tags:
+        - Histogramas
+      summary: histograma de um grupo
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+      schema:
+        type: Array
+        items: Object
+      responses:
+        200:
+          description: histograma
+
+  /{version}/partner/api/histogram/ad/{id}:
+    get:
+      tags:
+        - Histogramas
+      summary: histograma de um anúncio
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+
+      schema:
+        type: Array
+        items: Object
+      responses:
+        200:
+          description: histograma
+
+# Relatórios csv
+  /{version}/partner/api/campaigns/export:
+    get:
+      tags:
+        - Relatórios
+      summary: csv com estatísticas de campanhas de uma conta
+      produces:
+        - application/csv
+      consumes:
+        - '*'
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+      responses:
+        200:
+          description: arquivo csv
+
+  /{version}/partner/api/campaigns/{campaign_id}/adgroups/export:
+    get:
+      tags:
+        - Relatórios
+      summary: csv com estatísticas dos grupos de uma campanha
+      produces:
+        - application/csv
+      consumes:
+        - '*'
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+      responses:
+        200:
+          description: arquivo csv
+
+  /{version}/partner/api/campaigns/{campaign_id}/adgroups/{group_id}/ads/export:
+    get:
+      tags:
+        - Relatórios
+      summary: csv com estatísticas dos anúncios de um grupo
+      produces:
+        - application/csv
+      consumes:
+        - '*'
+      parameters: 
+        - in: header
+          name: Authorization
+          required: true
+
+        - in: querystring
+          name: start_date
+          required: true
+
+        - in: querystring
+          name: end_date
+          required: true
+      responses:
+        200:
+          description: arquivo csv

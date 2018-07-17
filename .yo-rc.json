@@ -1,0 +1,11 @@
+{
+  "generator-openapi-repo": {
+    "importExistingSpec": true,
+    "importedSpec": "../b2wads-api/partners-api.yaml",
+    "name": "b2wads",
+    "repo": "B2W-BIT/b2wads-api-docs",
+    "splitSpec": false,
+    "samples": true,
+    "installSwaggerUI": true
+  }
+}
